@@ -153,8 +153,8 @@ android {
             // Use a stable release keystore so upgrades don't require uninstall
             signingConfig = signingConfigs.release
             // Enables code shrinking, obfuscation, and optimization for release builds.
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
