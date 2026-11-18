@@ -26,12 +26,10 @@ class _WorkspacePageState extends State<WorkspacePage> {
 
   List<NoteItem> _items = [];
   bool _loading = true;
-  late int _tabIndex;
 
   @override
   void initState() {
     super.initState();
-    _tabIndex = widget.initialFocus == 'notes' ? 1 : 0;
     _load();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialFocus == 'inspiration') {
@@ -85,13 +83,8 @@ class _WorkspacePageState extends State<WorkspacePage> {
 
   @override
   Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= 700;
-
     return Scaffold(
       body: CartoonBackdrop(
-        variant: _tabIndex == 0
-            ? BackdropVariant.inspiration
-            : BackdropVariant.notes,
         child: SafeArea(
           child: Column(
             children: [
@@ -119,152 +112,37 @@ class _WorkspacePageState extends State<WorkspacePage> {
                   ],
                 ),
               ),
-              if (!wide)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _SegmentTabs(
-                    index: _tabIndex,
-                    onChanged: (i) => setState(() => _tabIndex = i),
-                  ),
-                ),
               Expanded(
                 child: _loading
                     ? const Center(child: CircularProgressIndicator())
-                    : wide
-                        ? Row(
-                            children: [
-                              Expanded(
-                                child: PanelColumn(
-                                  kind: NoteKind.inspiration,
-                                  items: _of(NoteKind.inspiration),
-                                  onAdd: () =>
-                                      _compose(NoteKind.inspiration),
-                                  onEdit: (item) => _compose(
-                                    NoteKind.inspiration,
-                                    editing: item,
-                                  ),
-                                  onDelete: _delete,
-                                ),
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: PanelColumn(
+                              kind: NoteKind.inspiration,
+                              items: _of(NoteKind.inspiration),
+                              onAdd: () => _compose(NoteKind.inspiration),
+                              onEdit: (item) => _compose(
+                                NoteKind.inspiration,
+                                editing: item,
                               ),
-                              Expanded(
-                                child: PanelColumn(
-                                  kind: NoteKind.note,
-                                  items: _of(NoteKind.note),
-                                  onAdd: () => _compose(NoteKind.note),
-                                  onEdit: (item) =>
-                                      _compose(NoteKind.note, editing: item),
-                                  onDelete: _delete,
-                                ),
-                              ),
-                            ],
-                          )
-                        : IndexedStack(
-                            index: _tabIndex,
-                            children: [
-                              PanelColumn(
-                                kind: NoteKind.inspiration,
-                                items: _of(NoteKind.inspiration),
-                                onAdd: () => _compose(NoteKind.inspiration),
-                                onEdit: (item) => _compose(
-                                  NoteKind.inspiration,
-                                  editing: item,
-                                ),
-                                onDelete: _delete,
-                              ),
-                              PanelColumn(
-                                kind: NoteKind.note,
-                                items: _of(NoteKind.note),
-                                onAdd: () => _compose(NoteKind.note),
-                                onEdit: (item) =>
-                                    _compose(NoteKind.note, editing: item),
-                                onDelete: _delete,
-                              ),
-                            ],
+                              onDelete: _delete,
+                            ),
                           ),
+                          Expanded(
+                            child: PanelColumn(
+                              kind: NoteKind.note,
+                              items: _of(NoteKind.note),
+                              onAdd: () => _compose(NoteKind.note),
+                              onEdit: (item) =>
+                                  _compose(NoteKind.note, editing: item),
+                              onDelete: _delete,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SegmentTabs extends StatelessWidget {
-  const _SegmentTabs({required this.index, required this.onChanged});
-
-  final int index;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _TabChip(
-              selected: index == 0,
-              label: '灵感蓝区',
-              color: SparkColors.blueDeep,
-              onTap: () => onChanged(0),
-            ),
-          ),
-          Expanded(
-            child: _TabChip(
-              selected: index == 1,
-              label: '记事粉区',
-              color: SparkColors.pinkDeep,
-              onTap: () => onChanged(1),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TabChip extends StatelessWidget {
-  const _TabChip({
-    required this.selected,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  final bool selected;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: selected ? color : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.nunito(
-                fontWeight: FontWeight.w800,
-                color: selected ? Colors.white : color,
-              ),
-            ),
           ),
         ),
       ),
